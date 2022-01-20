@@ -14,3 +14,9 @@ void print_custom_map_menu() {
     printf("4)back\n");
     printf("select your custom map your previous data in your selected custom map may lost: ");
 }
+
+void print_map_option() {
+    printf("1)house\n");
+    printf("2)lamp\n");
+    printf("3)hole\n");
+}
