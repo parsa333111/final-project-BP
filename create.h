@@ -74,9 +74,35 @@ void create_well_xy() {
     }
 }
 
+void create_name_xy() {
+    hex[0][0].yname = 4, hex[0][0].xname = 1;
+    for(int i = 0 ; i <= 8 ; i++) {
+        for(int j = 0 ; j <= 12 ; j+=2) {
+            if(i == 0 && j == 0)continue;
+            hex[j][i].xname = hex[0][0].xname + (8 * j);
+            hex[j][i].yname = hex[0][0].yname + (4 * i);
+        }
+    }
+    hex[1][0].yname = 2, hex[1][0].xname = 9;
+    for(int i = 0 ; i <= 8 ; i++) {
+        for(int j = 1 ; j <= 12 ; j+=2) {
+            if(i == 1 && j == 0)continue;
+            hex[j][i].xname = hex[1][0].xname + (8 * j) - 8;
+            hex[j][i].yname = hex[1][0].yname + (4 * i);
+        }
+    }
+    for(int i = 0 ; i <= 8 ; i++ ) {
+        for(int j = 0 ; j <= 12 ; j++ ) {
+            hex[j][i].xname++;
+            hex[j][i].yname--;
+        }
+    }
+}
+
 void create() {
     create_light_xy();
     create_well_xy();
     create_house_xy();
     create_escape_xy();
+    create_name_xy();
 }
