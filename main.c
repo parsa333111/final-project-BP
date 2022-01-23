@@ -4,6 +4,7 @@
 #include <string.h>
 #include "menu.h"
 #include "change string.h"
+#include "character.h"
 
 int row = 37;
 
@@ -16,6 +17,8 @@ struct hexagon {
     bool on;
     bool open;
     int character;
+    int xname, yname;
+
 };
 /*
 type :
@@ -23,7 +26,23 @@ type :
 2 = light
 3 = water well
 4 = escape
+5 = character
 */
+
+/*
+character :
+1 = JW
+2 = IL
+3 = WG
+4 = JS
+5 = SH
+6 = JB
+7 = MS
+8 = SG
+*/
+
+int JW = 1, IL = 2, WG = 3, JS = 4, SH = 5, JB = 6, MS = 7, SG = 8;
+
 struct hexagon hex[13][9];
 
 bool in_range(int x, int y) {
@@ -37,12 +56,11 @@ void assigned() {
             hex[i][j].type = 0;
         }
     }
-    hex[1][0].type = hex[1][8].type = hex[11][0].type = hex[11][8].type = 4;
 }
 
 #include "create.h"
 
-int house = 1, light = 2, well = 3, escape = 4, one = 1, zero = 0, two = 2, three = 3, four = 4, five = 5, six = 6;
+int house = 1, light = 2, well = 3, escape = 4, character = 5, one = 1, zero = 0, two = 2, three = 3, four = 4, five = 5, six = 6;
 
 void swap(char *c1, char *c2) {
     char tmp = *c1;
@@ -156,7 +174,7 @@ int main () {
                             mande--;
                         }
                         getchar();
-                        printf("press enter for continue build ,ap\n");
+                        printf("press enter for continue build map\n");
                         getchar();
                     }
                     mande = 2;
@@ -192,7 +210,7 @@ int main () {
                             mande--;
                         }
                         getchar();
-                        printf("press enter for continue build ,ap\n");
+                        printf("press enter for continue build map\n");
                         getchar();
                     }
                     mande = 6;
@@ -203,7 +221,7 @@ int main () {
                             puts(str[i]);
                         }
                         printf("You must add %d light on\n", mande);
-                        printf("Enter X, y for add %d light on : ", 7 - mande);
+                        printf("Enter X, y for add %dth light on : ", 7 - mande);
                         int x, y;
                         scanf("%d%d", &x, &y);
                         if(!in_range(x, y)) {
@@ -228,7 +246,7 @@ int main () {
                             mande--;
                         }
                         getchar();
-                        printf("press enter for continue build ,ap\n");
+                        printf("press enter for continue build map\n");
                         getchar();
                     }
                     mande = 2;
@@ -264,7 +282,7 @@ int main () {
                             mande--;
                         }
                         getchar();
-                        printf("press enter for continue build ,ap\n");
+                        printf("press enter for continue build map\n");
                         getchar();
                     }
                     mande = 6;
@@ -275,7 +293,7 @@ int main () {
                             puts(str[i]);
                         }
                         printf("You must add %d open well water\n", mande);
-                        printf("Enter X, y for add %d open well water : ", 7 - mande);
+                        printf("Enter X, y for add open well water : ");
                         int x, y;
                         scanf("%d%d", &x, &y);
                         if(!in_range(x, y)) {
@@ -300,7 +318,7 @@ int main () {
                             change(str[hex[x][y].ywell], "ww open", hex[x][y].xwell);
                         }
                         getchar();
-                        printf("press enter for continue build ,ap\n");
+                        printf("press enter for continue build map\n");
                         getchar();
                     }
                     mande = 2;
@@ -336,7 +354,7 @@ int main () {
                             change(str[hex[x][y].ywell], "ww close", hex[x][y].xwell);
                         }
                         getchar();
-                        printf("press enter for continue build ,ap\n");
+                        printf("press enter for continue build map\n");
                         getchar();
                     }
                     while(true) {
@@ -370,9 +388,60 @@ int main () {
                             change(str[hex[x][y].yhouse], "  house ", hex[x][y].xhouse);
                         }
                         getchar();
-                        printf("press enter for continue build ,ap\n");
+                        printf("press enter for continue build map\n");
                         getchar();
                     }
+                    for(int i = 1 ; i <= 8 ; i++ ) {
+                        mande = 1;
+                        while(mande) {
+                            system("cls");
+                            printf("current map\n");
+                            for(int i = 0 ; i < row ; i++ ) {
+                                puts(str[i]);
+                            }
+                            printf("You must add ");
+                            print_char(i);
+                            printf("\n");
+                            printf("Enter X, y for add ");
+                            print_char(i);
+                            printf(": ");
+                            int x, y;
+                            scanf("%d%d", &x, &y);
+                            if(!in_range(x, y)) {
+                                printf("Wrong input\n");
+                                printf("press enter and try again\n");
+                                getchar();
+                                getchar();
+                                continue;
+                            }
+                            if(hex[x][y].type != 0) {
+                                printf("this position isn't empty try again\n");
+                            }
+                            else {
+                                fwrite(&character, 4, 1, map);
+                                fwrite(&x, 4, 1, map);
+                                fwrite(&y, 4, 1, map);
+                                fwrite(&zero, 4, 1, map);
+                                fwrite(&zero, 4, 1, map);
+                                hex[x][y].type = character;
+                                hex[x][y].character = i;
+                                change(str[hex[x][y].yname], char_name_sus(i), hex[x][y].xname);
+                                mande--;
+                            }
+                            getchar();
+                            printf("press enter for continue build map\n");
+                            getchar();
+                        }
+                    }
+                    fclose(map);
+                    map = fopen(add_number_before_type("front_map.txt", op2), "w");
+                    for(int i = 0 ; i < row ; i++ ) {
+                        fputs(str[i], map);
+                        fputc('\n', map);
+                    }
+                    fclose(map);
+                    printf("successfully saved press enter to back in menu\n");
+                    getchar();
                 }
                 else if(op2 == 10) {
                     break;
