@@ -8,10 +8,8 @@ void print_first_menu() {
 
 void print_custom_map_menu() {
     system("cls");
-    printf("1)custom map 1\n");
-    printf("2)custom map 2\n");
-    printf("3)custom map 3\n");
-    printf("4)back\n");
+    printf("Select your custom map number in range of 1 and 9\n");
+    printf("10)back\n");
     printf("select your custom map your previous data in your selected custom map may lost: ");
 }
 
