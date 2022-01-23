@@ -34,28 +34,30 @@ void assigned() {
     hex[1][0].type = hex[1][8].type = hex[11][0].type = hex[11][8].type = 4;
 }
 
-void create_light_xy() {
-    hex[0][0].ylight = 4, hex[0][0].xlight = 1;
-    for(int i = 0 ; i <= 8 ; i++) {
-        for(int j = 0 ; j <= 12 ; j+=2) {
-            if(i == 0 && j == 0)continue;
-            hex[j][i].xlight = hex[0][0].xlight + (8 * j);
-            hex[j][i].ylight = hex[0][0].ylight + (4 * i);
-        }
-    }
-    hex[1][0].ylight = 2, hex[1][0].xlight = 9;
-    for(int i = 0 ; i <= 8 ; i++) {
-        for(int j = 1 ; j <= 12 ; j+=2) {
-            if(i == 1 && j == 0)continue;
-            hex[j][i].xlight = hex[1][0].xlight + (8 * j) - 8;
-            hex[j][i].ylight = hex[1][0].ylight + (4 * i);
-        }
+#include "create.h"
+
+int house = 1, light = 2, well = 3, escape = 4, one = 1, zero = 0, two = 2, three = 3, four = 4, five = 5, six = 6;
+
+int *give_pointer(int x) {
+    switch (x) {
+        case 1:
+            return &one;
+        case 2:
+            return &two;
+        case 3:
+            return &three;
+        case 4:
+            return &four;
+        case 5:
+            return &five;
+        case 6:
+            return &six;
     }
 }
 
 int main () {
     assigned();
-    create_light_xy();
+    create();
     while(true) {
         print_first_menu();
         int op;
@@ -87,6 +89,7 @@ int main () {
                 fclose(fp);
                 getchar();
                 if(op2 == 1) {
+                    FILE *map1 = fopen("map1.txt", "wb");
                     int mande;
                     mande = 6;
                     while(mande) {
@@ -96,18 +99,51 @@ int main () {
                             puts(str[i]);
                         }
                         printf("You must add %d light on\n", mande);
-                        printf("Enter X, y for add light on : ");
+                        printf("Enter X, y for add %d light on : ", 7 - mande);
                         int x, y;
                         scanf("%d%d", &x, &y);
                         if(hex[x][y].type != 0) {
                             printf("this position isn't empty try again\n");
                         }
                         else {
-                            printf("%d %d\n", hex[x][y].ylight, hex[x][y].xlight);
+                            fwrite(&light, 4, 1, map1);
+                            fwrite(&x, 4, 1, map1);
+                            fwrite(&y, 4, 1, map1);
+                            fwrite(&one, 4, 1, map1);
+                            fwrite(give_pointer(7 - mande), 4, 1, map1);
                             hex[x][y].type = 2;
                             hex[x][y].on = 1;
                             mande--;
                             change(str[hex[x][y].ylight], "lamp on", hex[x][y].xlight);
+                        }
+                        getchar();
+                        printf("press enter for continue build ,ap\n");
+                        getchar();
+                    }
+                    mande = 2;
+                    while(mande) {
+                        system("cls");
+                        printf("current map\n");
+                        for(int i = 0 ; i < row ; i++ ) {
+                            puts(str[i]);
+                        }
+                        printf("You must add %d light off\n", mande);
+                        printf("Enter X, y for add light off : ");
+                        int x, y;
+                        scanf("%d%d", &x, &y);
+                        if(hex[x][y].type != 0) {
+                            printf("this position isn't empty try again\n");
+                        }
+                        else {
+                            fwrite(&light, 4, 1, map1);
+                            fwrite(&x, 4, 1, map1);
+                            fwrite(&y, 4, 1, map1);
+                            fwrite(&zero, 4, 1, map1);
+                            fwrite(give_pointer(7 - mande), 4, 1, map1);
+                            hex[x][y].type = 2;
+                            hex[x][y].on = 1;
+                            mande--;
+                            change(str[hex[x][y].ylight], "lamp off", hex[x][y].xlight);
                         }
                         getchar();
                         printf("press enter for continue build ,ap\n");
