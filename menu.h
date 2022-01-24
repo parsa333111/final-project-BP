@@ -13,8 +13,14 @@ void print_custom_map_menu() {
     printf("select your custom map your previous data in your selected custom map may lost: ");
 }
 
-void print_map_option() {
-    printf("1)house\n");
-    printf("2)lamp\n");
-    printf("3)hole\n");
+void print_start_new_game_map() {
+    system("cls");
+    printf("choose your game map in range [1, 9] or enter 0 for default map\n");
+    printf("10)back\n");
+}
+
+void print_load_game_map() {
+    system("cls");
+    printf("choose your saved game number in range [1, 9]\n");
+    printf("10)back\n");
 }
