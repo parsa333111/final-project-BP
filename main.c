@@ -15,10 +15,10 @@ struct hexagon {
     int xescape, yescape;
     int type;
     bool on;
-    bool open;
     int character;
     int xname, yname;
     int xnei[6], ynei[6];
+    int tartib;
 };
 /*
 type :
@@ -106,16 +106,161 @@ int *give_pointer(int x) {
 }
 
 int main () {
-    assigned();
     create();
     while(true) {
+        assigned();
         print_first_menu();
         int op;
         scanf("%d", &op);
         getchar();
         if(op == 1 || op == 2) {
+            //type x y use tartib
+            //100 dorchand turn[1,4]
+            int dor, turn, vis, char_on_table[4] = {-1,-1,-1,-1};
+            bool char_on_board = 0;
             if(op == 1) {
+                while(true) {
+                    print_start_new_game_map();
+                    int op2;
+                    scanf("%d", &op2);
+                    if(op2 == 10)break;
+                    getchar();
+                    FILE *back_map, *front_map;
+                    char str[40][110];
+                    if(op2 < 0 || op2 > 9) {
+                        printf("Wrong input press enter and try again\n");
+                        getchar();
+                    }
+                    else if(op2 == 0) {
+                        back_map = fopen("back default map.txt", "rb");
+                        front_map = fopen("front default map.txt", "r");
+                    }
+                    else {
+                        back_map = fopen(add_number_before_type("back map.txt", op2), "rb");
+                        front_map = fopen(add_number_before_type("front map.txt", op2), "r");
+                    }
+                    for(int i = 0 ; i < row ; i++ ) {
+                        char ch;
+                        int cl = 0;
+                        while((ch = fgetc(front_map)) != EOF) {
+                            if(ch == '\n') break;
+                            str[i][cl] = ch;
+                            cl++;
+                        }
+                        str[i][cl] = '\0';
+                    }
+                    int p;
+                    int stack[5], cnt = 0;
+                    while(fread(&p, 4, 1, back_map) != 0) {
+                        if(cnt > 0) {
+                            stack[cnt] = p;
+                        }
+                        else if(cnt == 0) {
+                            if(p != 100) {
+                                stack[cnt] = p;
+                                cnt++;
+                            }
+                            else {
+                                break;
+                            }
+                        }
+                        if(cnt == 5) {            //type x y use tartib
+                            int type = stack[0];
+                            int x = stack[1];
+                            int y = stack[2];
+                            int use = stack[3];
+                            int tar = stack[4];
+                            cnt = 0;
+                            hex[x][y].type = type;
+                            if(type != character)hex[x][y].on = use;
+                            else hex[x][y].character = use;
+                            hex[x][y].tartib = tar;
+                        }
+                    }
+                    fread(&dor, 4, 1, back_map);
+                    fread(&turn, 4, 1, back_map);
+                    fread(&vis, 4, 1, back_map);
+                    cnt = 0;
+                    while(fread(&char_on_table[cnt], 4, 1, back_map) != 0) {
+                        cnt++;
+                        char_on_board = 1;
+                    }
+                }
+            }
+            else {
+                while(true) {
+                    print_load_game_map();
+                    int op2;
+                    scanf("%d", &op2);
+                    if(op2 == 10)break;
+                    getchar();
+                    FILE *back_map, *front_map;
+                    char str[40][110];
+                    if(op2 < 1 || op2 > 9) {
+                        printf("Wrong input press enter and try again\n");
+                        getchar();
+                    }
+                    else {
+                        back_map = fopen(add_number_before_type("back saved map.txt", op2), "rb");
+                        front_map = fopen(add_number_before_type("front saved map.txt", op2), "r");
+                    }
+                    for(int i = 0 ; i < row ; i++ ) {
+                        char ch;
+                        int cl = 0;
+                        while((ch = fgetc(front_map)) != EOF) {
+                            if(ch == '\n') break;
+                            str[i][cl] = ch;
+                            cl++;
+                        }
+                        str[i][cl] = '\0';
+                    }
+                    int p;
+                    int stack[5], cnt = 0;
+                    while(fread(&p, 4, 1, back_map) != 0) {
+                        if(cnt > 0) {
+                            stack[cnt] = p;
+                        }
+                        else if(cnt == 0) {
+                            if(p != 100) {
+                                stack[cnt] = p;
+                                cnt++;
+                            }
+                            else {
+                                break;
+                            }
+                        }
+                        if(cnt == 5) {            //type x y use tartib
+                            int type = stack[0];
+                            int x = stack[1];
+                            int y = stack[2];
+                            int use = stack[3];
+                            int tar = stack[4];
+                            cnt = 0;
+                            hex[x][y].type = type;
+                            if(type != character)hex[x][y].on = use;
+                            else hex[x][y].character = use;
+                            hex[x][y].tartib = tar;
+                        }
+                    }
+                    fread(&dor, 4, 1, back_map);
+                    fread(&turn, 4, 1, back_map);
+                    fread(&vis, 4, 1, back_map);
+                    cnt = 0;
+                    while(fread(&char_on_table[cnt], 4, 1, back_map) != 0) {
+                        cnt++;
+                        char_on_board = 1;
+                    }
+                }
+            }
+            if(char_on_board) {
+                /*
+                fill it
+                */
+            }
+            else {
+                for(; dor <= 8 ; dor++) {
 
+                }
             }
         }
         else if(op == 3) {
@@ -420,7 +565,7 @@ int main () {
                                 fwrite(&character, 4, 1, map);
                                 fwrite(&x, 4, 1, map);
                                 fwrite(&y, 4, 1, map);
-                                fwrite(&zero, 4, 1, map);
+                                fwrite(&i, 4, 1, map);
                                 fwrite(&zero, 4, 1, map);
                                 hex[x][y].type = character;
                                 hex[x][y].character = i;
