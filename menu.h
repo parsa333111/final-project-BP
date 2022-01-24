@@ -24,3 +24,12 @@ void print_load_game_map() {
     printf("choose your saved game number in range [1, 9]\n");
     printf("10)back\n");
 }
+
+void print_choosing_menu() {
+    printf("choose your character to play with \n");
+    for(int i = 1 ; i <= 8 ; i++ ) {
+        printf("%d)", i);
+        print_char(i);
+        printf("\n");
+    }
+}
