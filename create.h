@@ -104,56 +104,56 @@ void create_neighbor_xy() {
         for(int i = 0 ; i <= 8 ; i++ ) {
             int cnt = 0;
             if(in_range(j, i - 1)) {
-                xnei[cnt] = j;
-                ynei[cnt] = i - 1;
+                hex[j][i].xnei[cnt] = j;
+                hex[j][i].ynei[cnt] = i - 1;
                 cnt++;
             }
             if(in_range(j, i + 1)) {
-                xnei[cnt] = j;
-                ynei[cnt] = i + 1;
+                hex[j][i].xnei[cnt] = j;
+                hex[j][i].ynei[cnt] = i + 1;
                 cnt++;
             }
             if(j % 2 == 0) {
                 if(in_range(j + 1, i)) {
-                    xnei[cnt] = j + 1;
-                    ynei[cnt] = i;
+                    hex[j][i].xnei[cnt] = j + 1;
+                    hex[j][i].ynei[cnt] = i;
                     cnt++;
                 }
                 if(in_range(j + 1, i + 1)) {
-                    xnei[cnt] = j + 1;
-                    ynei[cnt] = i + 1;
+                    hex[j][i].xnei[cnt] = j + 1;
+                    hex[j][i].ynei[cnt] = i + 1;
                     cnt++;
                 }
                 if(in_range(j - 1, i)) {
-                    xnei[cnt] = j - 1;
-                    ynei[cnt] = i;
+                    hex[j][i].xnei[cnt] = j - 1;
+                    hex[j][i].ynei[cnt] = i;
                     cnt++;
                 }
                 if(in_range(j - 1, i + 1)) {
-                    xnei[cnt] = j - 1;
-                    ynei[cnt] = i + 1;
+                    hex[j][i].xnei[cnt] = j - 1;
+                    hex[j][i].ynei[cnt] = i + 1;
                     cnt++;
                 }
             }
             else {
                 if(in_range(j - 1, i - 1)) {
-                    xnei[cnt] = j - 1;
-                    ynei[cnt] = i - 1;
+                    hex[j][i].xnei[cnt] = j - 1;
+                    hex[j][i].ynei[cnt] = i - 1;
                     cnt++;
                 }
                 if(in_range(j - 1, i)) {
-                    xnei[cnt] = j - 1;
-                    ynei[cnt] = i;
+                    hex[j][i].xnei[cnt] = j - 1;
+                    hex[j][i].ynei[cnt] = i;
                     cnt++;
                 }
                 if(in_range(j + 1, i - 1)) {
-                    xnei[cnt] = j + 1;
-                    ynei[cnt] = i - 1;
+                    hex[j][i].xnei[cnt] = j + 1;
+                    hex[j][i].ynei[cnt] = i - 1;
                     cnt++;
                 }
                 if(in_range(j + 1, i)) {
-                    xnei[cnt] = j + 1;
-                    ynei[cnt] = i;
+                    hex[j][i].xnei[cnt] = j + 1;
+                    hex[j][i].ynei[cnt] = i;
                     cnt++;
                 }
             }
