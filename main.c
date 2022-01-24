@@ -18,7 +18,7 @@ struct hexagon {
     bool open;
     int character;
     int xname, yname;
-
+    int xnei[6], ynei[6];
 };
 /*
 type :
@@ -113,11 +113,10 @@ int main () {
         int op;
         scanf("%d", &op);
         getchar();
-        if(op == 1) {
+        if(op == 1 || op == 2) {
+            if(op == 1) {
 
-        }
-        else if(op == 2) {
-
+            }
         }
         else if(op == 3) {
             while(true) {
@@ -184,7 +183,7 @@ int main () {
                         for(int i = 0 ; i < row ; i++ ) {
                             puts(str[i]);
                         }
-                        printf("You must add %d \n", mande);
+                        printf("You must add %d close escape\n", mande);
                         printf("Enter X, y for add close escape : ");
                         int x, y;
                         scanf("%d%d", &x, &y);
