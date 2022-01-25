@@ -35,6 +35,15 @@ void print_choosing_menu() {
     printf("10)See card in hand\n");
 }
 
+
+void print_choosing_menu2() {
+    for(int i = 1 ; i <= 8 ; i++ ) {
+        printf("%d)", i);
+        print_char(i);
+        printf("\n");
+    }
+}
+
 void shelock_menu() {
     system("cls");
     printf("1)detective card using shelock\n");
