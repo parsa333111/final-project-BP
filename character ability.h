@@ -52,6 +52,30 @@ int dis(int x1, int y1, int x2, int y2, int dep) {
     return mn;
 }
 
+int dis_obstacle(int x1, int y1, int x2, int y2, int dep) {
+    if(in_range(x1, y1) == 0 || dep > 4) return 5;
+    if(hex[x1][y1].type == escape) return 5;
+    if(x1 == x2 && y1 == y2) return dep;
+    int mn = 5;
+    for(int i = 0 ; i < 6 ; i++ ) {
+        mn = minimum(dis_obstacle(hex[x1][y1].xnei[i], hex[x1][y1].ynei[i], x2, y2, dep + 1), mn);
+    }
+    if(hex[x1][y1].type == well) {
+        if(hex[x1][y1].on == 1) {
+            for(int i = 0 ; i < 13 ; i++ ) {
+                for(int j = 0 ; j < 9 ; j++ ) {
+                    if(hex[i][j].type == well) {
+                        if(hex[i][j].on == 1) {
+                            mn = minimum(dis_obstacle(i, j, x2, y2, dep + 1), mn);
+                        }
+                    }
+                }
+            }
+        }
+    }
+    return mn;
+}
+
 void print_board_char1(char str[40][110]) {
     int x, y;
     while(true) {
@@ -505,5 +529,33 @@ void print_board_char6(char str[40][110]) {
 }
 
 void print_board_char7(char str[40][110]) {
-
+    int x, y;
+    while(true) {
+        system("cls");
+        print_board(str);
+        printf("You choose MS you must move your character between 1-4 hexagon your character can move from obstacle\n");
+        printf("Enter X, Y of your destination :");
+        scanf("%d%d", &x, &y);
+        getchar();
+        if(in_range(x, y) == 0) {
+            printf("WE\n");
+            printf("Wrong input press inter and try again");
+            getchar();
+            continue;
+        }
+        int fx = findx(7), fy = findy(7);
+        printf("%d %d %d %d\n", x, y, fx, fy);
+        int dis1 = dis_obstacle(x, y, fx, fy, 0);
+        printf("dis : %d\n", dis1);
+        if(0 <  dis1 && dis1 < 5 && hex[x][y].type != light &&  hex[x][y].type != escape && hex[x][y].character == 0 && hex[x][y].type != house) {
+            swap_str_name(x, y, fx, fy, str);
+            hex[x][y].character = 7;
+            hex[fx][fy].character = 0;
+            break;
+        }
+        else {
+            printf("Wrong input press inter and try again");
+            getchar();
+        }
+    }
 }
