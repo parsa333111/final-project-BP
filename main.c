@@ -561,7 +561,7 @@ int main () {
                                     print_board_char6(str);
                                 }
                                 else if(choose_char == 7) {
-
+                                    print_board_char7(str);
                                 }
                                 else if(choose_char == 8) {
 
