@@ -32,4 +32,12 @@ void print_choosing_menu() {
         print_char(i);
         printf("\n");
     }
+    printf("10)See card in hand\n");
+}
+
+void shelock_menu() {
+    system("cls");
+    printf("1)detective card using shelock\n");
+    printf("2)jack card using shelock\n");
+
 }
