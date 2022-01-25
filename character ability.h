@@ -28,6 +28,19 @@ int findy(int cha) {
     }
 }
 
+void dfs(int x, int y, int dp[13][9]) {
+    for(int i = 0 ; i < 6 ; i++ ) {
+        int x1 = hex[x][y].xnei[i], y1 = hex[x][y].ynei[i];
+        if(in_range(x1, y1) == 0) continue;
+        if(hex[x1][y1].type != house && hex[x1][y1].type != escape && hex[x1][y1].type != light) {
+            if(dp[x1][y1] > dp[x][y] + 1) {
+                dp[x1][y1] = dp[x][y] + 1;
+                dfs(x1, y1, dp);
+            }
+        }
+    }
+}
+
 int dis(int x1, int y1, int x2, int y2, int dep) {
     if(in_range(x1, y1) == 0 || dep > 4) return 5;
     if(hex[x1][y1].type == light || hex[x1][y1].type == house || hex[x1][y1].type == escape) return 5;
@@ -557,5 +570,124 @@ void print_board_char7(char str[40][110]) {
             printf("Wrong input press inter and try again");
             getchar();
         }
+    }
+}
+
+void print_board_char8(char str[40][110]) {
+    bool mo1 = 0, mo2 = 0;
+    while(true) {
+        system("cls");
+        print_board(str);
+        printf("You choose SG you must move him 1-3 hexagon and make 3 move to make closer other character to him\n");
+        printf("1)move SG\n");
+        printf("2)move other character\n");
+        int op;
+        scanf("%d", &op);
+        getchar();
+        if(op == 1 && mo1 == 1) {
+            printf("Wrong input press enter and try again\n");
+            getchar();
+            continue;
+        }
+        if(op == 2 && mo2 == 1) {
+            printf("Wrong input press enter and try again\n");
+            getchar();
+            continue;
+        }
+        if(op == 1) {
+            int x, y;
+            system("cls");
+            print_board(str);
+            printf("Enter your destination X, y : ");
+            scanf("%d%d", &x, &y);
+            getchar();
+            int fx = findx(8), fy = findy(8);
+            if(in_range(x, y) == 0) {
+                printf("Wrong input press enter and try again\n");
+                getchar();
+                continue;
+            }
+            if(hex[x][y].character != 0 || hex[x][y].type == light || hex[x][y].type == house || hex[x][y].type == escape) {
+                printf("Wrong input press enter and try again\n");
+                getchar();
+                continue;
+            }
+            int dis1 = dis(x, y, fx, fy, 0);
+            if(dis1 > 0 && dis1 < 4) {
+                swap_str_name(x, y, fx, fy, str);
+                hex[x][y].character = 8;
+                hex[fx][fy].character = 0;
+                mo1 = 1;
+            }
+            else {
+                printf("Wrong input press enter and try again\n");
+                getchar();
+                continue;
+            }
+        }
+        else if(op == 2) {
+            int dp[13][9];
+            for(int i = 0 ; i < 13 ; i++ ) {
+                for(int j = 0 ; j < 9 ; j++ ) {
+                    dp[i][j] = 100;
+                }
+            }
+            int fx = findx(8), fy = findy(8);
+            dp[fx][fy] = 0;
+            dfs(fx, fy, dp);
+            int move_char = 3;
+            while(move_char) {
+                system("cls");
+                print_board(str);
+                printf("choose your character to make closer to SG \n");
+                printf("You have %d move", move_char)
+                print_choosing_menu2();
+                int op2;
+                scanf("%d", &op2);
+                getchar();
+                if(op2 < 1 || op2 > 8) {
+                    printf("Wrong input press enter and try again\n");
+                    getchar();
+                    continue;
+                }
+                else {
+                    int x, y;
+                    printf("Enter Your destination X, y for ");
+                    print_char(op2);
+                    printf(" : ");
+                    scanf("%d%d", &x, &y);
+                    getchar();
+                    int ffx = findx(op2), ffy = findy(op2);
+                    if(in_range(x, y) == 0) {
+                        printf("Wrong input press enter and try again\n");
+                        getchar();
+                        continue;
+                    }
+                    if(hex[x][y].type == house || hex[x][y].type == escape || hex[x][y].type == light || hex[x][y].character != 0) {
+                        printf("Wrong input press enter and try again\n");
+                        getchar();
+                        continue;
+                    }
+                    int fas = dp[ffx][ffy] - dp[x][y];
+                    if(fas < 1 || fas > move_char) {
+                        printf("Wrong input press enter and try again\n");
+                        getchar();
+                        continue;
+                    }
+                    swap_str_name(x, y, ffx, ffy, str);
+                    hex[x][y].character = op2;
+                    hex[ffx][ffy].character = 0;
+                    move_char -= fas;
+                }
+            }
+            mo2 = 1;
+        }
+        else {
+            printf("Wrong input press enter and try again\n");
+            getchar();
+            continue;
+        }
+
+
     }
 }
