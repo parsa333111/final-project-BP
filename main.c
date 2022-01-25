@@ -3,11 +3,28 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
-#include "change string.h"
 #include "character.h"
 #include "menu.h"
 
 int row = 37;
+
+enum {u, d, lu, ld, ru, rd};
+
+int minimum(int x, int y) {
+    return (x < y) ? x : y;
+}
+
+void swap_int(int *x, int *y) {
+    int tmp = *x;
+    *x = *y;
+    *y = tmp;
+}
+
+void swap_bool(bool *x, bool *y) {
+    bool tmp = *x;
+    *x = *y;
+    *y = tmp;
+}
 
 struct node {
     int id;
@@ -25,7 +42,21 @@ struct hexagon {
     int xname, yname;
     int xnei[6], ynei[6];
     int tartib;
+    int light_dir;
 };
+
+void swap_list(struct node *list, int valx, int y) {
+    struct node *cpy_list = list;
+    while(list -> id != valx) {
+        list = list -> nex;
+    }
+    for(int i = 0 ; i < y ; i++ ) {
+        cpy_list = cpy_list -> nex;
+    }
+    list -> id = cpy_list -> id;
+    cpy_list -> id = valx;
+}
+
 /*
 type :
 1 = house
@@ -59,7 +90,7 @@ bool in_range(int x, int y) {
 void assigned() {
     for(int i = 0 ; i < 13 ; i++ ) {
         for(int j = 0 ; j < 9 ; j++ ) {
-            hex[i][j].type = 0;
+            hex[i][j].character = hex[i][j].type = 0;
         }
     }
 }
@@ -206,11 +237,21 @@ bool exist_list(struct node* list, int find, int ign) {
     return 0;
 }
 
+void swap_hexagon(int x1, int y1, int x2, int y2) {
+    swap_int(&hex[x1][y1].tartib, &hex[x2][y2].tartib);
+    swap_int(&hex[x1][y1].character, &hex[x2][y2].character);
+    swap_int(&hex[x1][y1].type, &hex[x2][y2].type);
+    swap_bool(&hex[x1][y1].on, &hex[x2][y2].on);
+}
+
+
+#include "change string.h"
+#include "character ability.h"
+
 int main () {
     srand(time(0));
     create();
     while(true) {
-        assigned();
         print_first_menu();
         int op;
         scanf("%d", &op);
@@ -218,6 +259,7 @@ int main () {
         if(op == 1 || op == 2) {
             //type x y use tartib
             //100 dorchand turn[1,4]
+            assigned();
             int dor, turn, vis, char_on_table[8] = {-1,-1,-1,-1,-1,-1,-1,-1}, jack = 0;
             bool char_on_board = 0;
             char str[40][110];
@@ -275,7 +317,7 @@ int main () {
                             int use = stack[3];
                             int tar = stack[4];
                             cnt = 0;
-                            hex[x][y].type = type;
+                            if(type != character) hex[x][y].type = type;
                             if(type != character)hex[x][y].on = use;
                             else hex[x][y].character = use;
                             hex[x][y].tartib = tar;
@@ -295,6 +337,7 @@ int main () {
             }
             else {
                 while(true) {
+                    assigned();
                     print_load_game_map();
                     int op2;
                     scanf("%d", &op2);
@@ -342,7 +385,7 @@ int main () {
                             int use = stack[3];
                             int tar = stack[4];
                             cnt = 0;
-                            hex[x][y].type = type;
+                            if(type != character) hex[x][y].type = type;
                             if(type != character)hex[x][y].on = use;
                             else hex[x][y].character = use;
                             hex[x][y].tartib = tar;
@@ -366,7 +409,7 @@ int main () {
                 for(; dor <= 8 ; dor++) {
                      //change list and free them if(dor % 2 == 1) list1 = list2 = NULL;
                     for(int tur = turn ; tur <= 4 ; tur++ ) {
-                         if(char_on_board) {
+                        if(char_on_board) {
                             char_on_board = 0;
                             for(int i = 1 ; i <= 8 ; i++ ) {
                                 if(i == 1) {
@@ -380,7 +423,7 @@ int main () {
                             }
                             list2 = next_four(list1);
                          }
-                         else if (tur == 1) {
+                        else if (tur == 1 && dor % 2 == 1) {
                             for(int i = 1 ; i <= 8 ; i++ ) {
                                 if(i == 1) {
                                     list1 = malloc(sizeof(struct node*));
@@ -406,7 +449,32 @@ int main () {
                             int choose_char;
                             scanf("%d", &choose_char);
                             if(exist_list(list, choose_char, tur - 1)) {
+                                swap_list(list, choose_char, tur - 1);
+                                if(choose_char == 1) {
+                                    print_board_char1(str);
+                                }
+                                else if(choose_char == 2) {
+                                    print_board_char2(str);
+                                }
+                                else if(choose_char == 3) {
 
+                                }
+                                else if(choose_char == 4) {
+
+                                }
+                                else if(choose_char == 5) {
+
+                                }
+                                else if(choose_char == 6) {
+
+                                }
+                                else if(choose_char == 7) {
+
+                                }
+                                else if(choose_char == 8) {
+
+                                }
+                                break;
                             }
                             else {
                                 printf("Wrong input press Enter and try again\n");
@@ -421,6 +489,7 @@ int main () {
         }
         else if(op == 3) {
             while(true) {
+                assigned();
                 print_custom_map_menu();
                 int op2;
                 scanf("%d", &op2);
@@ -714,16 +783,31 @@ int main () {
                                 getchar();
                                 continue;
                             }
-                            if(hex[x][y].type != 0) {
+                            if(hex[x][y].character != 0 || hex[x][y].type == light || hex[x][y].type == escape || hex[x][y].type == house) {
                                 printf("this position isn't empty try again\n");
                             }
                             else {
+                                int dir;
+                                printf("You must choose your direction of your light\n");
+                                printf("1)Up\n");
+                                printf("2)Down\n");
+                                printf("3)Left and Up\n");
+                                printf("4)Left and down\n");
+                                printf("5)Right and up\n");
+                                printf("6)Right and down\n");
+                                scanf("%d", dir);
                                 fwrite(&character, 4, 1, map);
                                 fwrite(&x, 4, 1, map);
                                 fwrite(&y, 4, 1, map);
                                 fwrite(&i, 4, 1, map);
-                                fwrite(&zero, 4, 1, map);
-                                hex[x][y].type = character;
+                                if(i == 1) {
+                                    fwrite(&dir, 4, 1, map);
+                                }
+                                else {
+                                    fwrite(&zero, 4, 1, map);
+                                }
+                                    //hex[x][y].type = character;
+
                                 hex[x][y].character = i;
                                 change(str[hex[x][y].yname], char_name_sus(i), hex[x][y].xname);
                                 mande--;
