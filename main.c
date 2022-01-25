@@ -8,6 +8,17 @@
 
 int row = 37;
 
+bool shelock[9];
+int shelock_jack[9], shelock_detective[9], shd, shj;
+
+void delay(int x) {
+    long long int xp = 300000000LL * x;
+    for(int i = 0 ; i < xp ; i++ ) {
+        int t = i;
+        t = t & 101;
+    }
+}
+
 enum {u, d, lu, ld, ru, rd};
 
 int minimum(int x, int y) {
@@ -209,6 +220,25 @@ void print_list(struct node *list, int x) {
     printf("\n");
 }
 
+int give_turn(int dor, int tur) {
+    if(dor % 2 == 1) {
+        if(tur == 1 || tur == 4) {
+            return 1;
+        }
+        else {
+            return 2;
+        }
+    }
+    else {
+        if(tur == 2 || tur == 3) {
+            return 1;
+        }
+        else {
+            return 2;
+        }
+    }
+}
+
 void print_turn(int dor, int tur) {
     if(dor % 2 == 1) {
         if(tur == 1 || tur == 4) {
@@ -404,6 +434,7 @@ int main () {
                 }
             }
             //group 1, group 2
+            system("cls");
             {
                 struct node *list1 = NULL, *list2 = NULL;
                 for(; dor <= 8 ; dor++) {
@@ -424,6 +455,27 @@ int main () {
                             list2 = next_four(list1);
                          }
                         else if (tur == 1 && dor % 2 == 1) {
+                            if(jack == 0) {
+                                jack = rand() % 8;
+                                jack++;
+                                shelock[jack] = 1;
+                                int sec = 2;
+                                while(sec) {
+                                    printf("only jack must see screen, jack character reveal in %d second", sec);
+                                    delay(1);
+                                    printf("\r");
+                                    sec--;
+                                }
+                                sec = 2 ;
+                                while(sec) {
+                                    printf("only jack must see screen, jack character is ");
+                                    print_char(jack);
+                                    printf(" jack character disappear in %d second", sec);
+                                    delay(1);
+                                    printf("\r");
+                                    sec--;
+                                }
+                            }
                             for(int i = 1 ; i <= 8 ; i++ ) {
                                 if(i == 1) {
                                     list1 = malloc(sizeof(struct node*));
@@ -448,6 +500,46 @@ int main () {
                             struct node *list = (dor % 2 == 0) ? list2 : list1;
                             int choose_char;
                             scanf("%d", &choose_char);
+                            getchar();
+                            {
+                                if(choose_char == 10) {
+                                     while(true) {
+                                        shelock_menu();
+                                        int op;
+                                        scanf("%d", &op);
+                                        getchar();
+                                        if(op == 1) {
+                                            if(shd == 0) {
+                                                printf("No card yet\n");
+                                            }
+                                            for(int i = 0 ; i < shd ; i++ ) {
+                                                print_char(shelock_detective[i]);
+                                                printf(" can't be jack\n");
+                                            }
+                                            printf("Press enter for continue");
+                                            getchar();
+                                            break;
+                                        }
+                                        else if(op == 2) {
+                                            if(shj == 0) {
+                                                printf("No card yet\n");
+                                            }
+                                            for(int i = 0 ; i < shj ; i++ ) {
+                                                print_char(shelock_jack[i]);
+                                                printf(" can't be jack\n");
+                                            }
+                                            printf("Press enter for continue");
+                                            getchar();
+                                            break;
+                                        }
+                                        else {
+                                            printf("Wrong input press enter and try again");
+                                            getchar();
+                                        }
+                                    }
+                                    continue;
+                                }
+                            }
                             if(exist_list(list, choose_char, tur - 1)) {
                                 swap_list(list, choose_char, tur - 1);
                                 if(choose_char == 1) {
@@ -457,16 +549,16 @@ int main () {
                                     print_board_char2(str);
                                 }
                                 else if(choose_char == 3) {
-
+                                    print_board_char3(str);
                                 }
                                 else if(choose_char == 4) {
-
+                                    print_board_char4(str);
                                 }
                                 else if(choose_char == 5) {
-
+                                    print_board_char5(str, dor, tur);
                                 }
                                 else if(choose_char == 6) {
-
+                                    print_board_char6(str);
                                 }
                                 else if(choose_char == 7) {
 
@@ -478,7 +570,6 @@ int main () {
                             }
                             else {
                                 printf("Wrong input press Enter and try again\n");
-                                getchar();
                                 getchar();
                             }
                         }
