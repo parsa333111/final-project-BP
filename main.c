@@ -564,7 +564,7 @@ int main () {
                                     print_board_char7(str);
                                 }
                                 else if(choose_char == 8) {
-
+                                    print_board_char8(str);
                                 }
                                 break;
                             }
