@@ -280,7 +280,7 @@ void print_board_char3(char str[40][110]) {
             getchar();
             if(in_range(x, y) == 0) {
             }
-            else if(hex[x][y].character == 0) {
+            else if(hex[x][y].character == 0 || hex[x][y].character == 3) {
                 printf("Wrong input press inter and try again");
                 getchar();
             }
@@ -533,7 +533,8 @@ void print_board_char6(char str[40][110]) {
             }
             swap_str_type(x1, y1, x2, y2, str);
             swap_bool(&hex[x1][y1].on, &hex[x2][y2].on);
-            break;
+            sw = 1;
+            continue;
         }
         printf("Wrong input press enter and try again");
         getchar();
@@ -577,6 +578,7 @@ void print_board_char8(char str[40][110]) {
     bool mo1 = 0, mo2 = 0;
     while(true) {
         system("cls");
+        if(mo1 == 1 && mo2 == 2) break;
         print_board(str);
         printf("You choose SG you must move him 1-3 hexagon and make 3 move to make closer other character to him\n");
         printf("1)move SG\n");
@@ -640,7 +642,7 @@ void print_board_char8(char str[40][110]) {
                 system("cls");
                 print_board(str);
                 printf("choose your character to make closer to SG \n");
-                printf("You have %d move", move_char)
+                printf("You have %d move", move_char);
                 print_choosing_menu2();
                 int op2;
                 scanf("%d", &op2);
