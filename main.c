@@ -21,6 +21,15 @@ void delay(int x) {
 
 enum {u, d, lu, ld, ru, rd};
 
+void print_dir(int x) {
+    if(x == 1)printf("Up\n");
+    if(x == 2)printf("Down\n");
+    if(x == 3)printf("Left and Up\n");
+    if(x == 4)printf("Left and down\n");
+    if(x == 5)printf("Right and up\n");
+    if(x == 6)printf("Right and down\n");
+}
+
 int minimum(int x, int y) {
     return (x < y) ? x : y;
 }
@@ -108,7 +117,7 @@ void assigned() {
 
 #include "create.h"
 
-int house = 1, light = 2, well = 3, escape = 4, character = 5, one = 1, zero = 0, two = 2, three = 3, four = 4, five = 5, six = 6;
+int house = 1, light = 2, well = 3, escape = 4, character = 5, one = 1, zero = 0, two = 2, three = 3, four = 4, five = 5, six = 6, hund = 100;
 
 void swap(char *c1, char *c2) {
     char tmp = *c1;
@@ -239,21 +248,35 @@ int give_turn(int dor, int tur) {
     }
 }
 
-void print_turn(int dor, int tur) {
+void print_viz(int viz) {
+    if(viz == 0) {
+        printf("jack wasn't visible and can escape this round\n");
+    }
+
+    if(viz == 1) {
+        printf("jack was visible and can't escape this round\n");
+    }
+}
+
+void print_turn(int dor, int tur, int viz) {
     if(dor % 2 == 1) {
         if(tur == 1 || tur == 4) {
-            printf("detective turn\n");
+            printf("detective turn, ");
+            print_viz(viz);
         }
         else {
-            printf("mr.jack turn\n");
+            printf("mr.jack turn, ");
+            print_viz(viz);
         }
     }
     else {
         if(tur == 2 || tur == 3) {
-            printf("detective turn\n");
+            printf("detective turn, ");
+            print_viz(viz);
         }
         else {
-            printf("mr.jack turn\n");
+            printf("mr.jack turn, ");
+            print_viz(viz);
         }
     }
 }
@@ -436,10 +459,17 @@ int main () {
             //group 1, group 2
             system("cls");
             {
+                FILE *rep = fopen("replay.txt", "w");
                 struct node *list1 = NULL, *list2 = NULL;
                 for(; dor <= 8 ; dor++) {
                      //change list and free them if(dor % 2 == 1) list1 = list2 = NULL;
                     for(int tur = turn ; tur <= 4 ; tur++ ) {
+                        for(int i = 0 ; i < row ; i++ ) {
+                            for(int j = 0 ; j < strlen(str[i]) ; j++ ) {
+                                fprintf(rep, "%c", str[i][j]);
+                            }
+                            fprintf(rep, "%c", '\n');
+                        }
                         if(char_on_board) {
                             char_on_board = 0;
                             for(int i = 1 ; i <= 8 ; i++ ) {
@@ -459,22 +489,14 @@ int main () {
                                 jack = rand() % 8;
                                 jack++;
                                 shelock[jack] = 1;
-                                int sec = 2;
-                                while(sec) {
-                                    printf("only jack must see screen, jack character reveal in %d second", sec);
-                                    delay(1);
-                                    printf("\r");
-                                    sec--;
-                                }
-                                sec = 2 ;
-                                while(sec) {
-                                    printf("only jack must see screen, jack character is ");
-                                    print_char(jack);
-                                    printf(" jack character disappear in %d second", sec);
-                                    delay(1);
-                                    printf("\r");
-                                    sec--;
-                                }
+                                printf("only jack must see screen, jack character reveal with press enter");
+                                getchar();
+                                system("cls");
+                                printf("only jack must see screen, jack character is ");
+                                print_char(jack);
+                                printf(" jack character disappear with press enter");
+                                getchar();
+                                system("cls");
                             }
                             for(int i = 1 ; i <= 8 ; i++ ) {
                                 if(i == 1) {
@@ -493,11 +515,11 @@ int main () {
                         while(true) {
                             system("cls");
                             print_board(str);
-                            print_turn(dor, tur);
+                            print_turn(dor, tur, vis);
                             print_choosing_menu();
                             if(dor % 2 == 1) print_list(list1, tur);
                             else print_list(list2, tur);
-                            struct node *list = (dor % 2 == 0) ? list2 : list1;
+                            struct node *list = ((dor % 2 == 0) ? list2 : list1);
                             int choose_char;
                             scanf("%d", &choose_char);
                             getchar();
@@ -539,6 +561,113 @@ int main () {
                                     }
                                     continue;
                                 }
+                                else if(11 == choose_char) {
+                                    system("cls");
+                                    print_board(str);
+                                    printf("Watson light direction is ");
+                                    int fx = findx(1);
+                                    int fy = findy(1);
+                                    print_dir(hex[fx][fy].tartib);
+                                    printf("\npress enter for continue");
+                                    getchar();
+                                    continue;
+                                }
+                                else if(12 == choose_char) {
+                                    system("cls");
+                                    printf("Press enter to see jack character this is only for jack to see\n");
+                                    getchar();
+                                    print_char(jack);
+                                    printf(" is jack press enter to go back in game");
+                                    getchar();
+                                    continue;
+                                }
+                                else if(0 == choose_char && give_turn(dor, tur) == 1) {
+                                    system("cls");
+                                    print_board(str);
+                                    printf("Are you sure to want to attempt a capture?\n");
+                                    printf("1)Yes\n2)No\n");
+                                    int op3;
+                                    scanf("%d", &op3);
+                                    getchar();
+                                    if(op3 == 2) {
+                                        printf("Okay, press enter for continue");
+                                        getchar();
+                                        continue;
+                                    }
+                                    else if(op3 != 1) {
+                                        printf("Wrong input press enter and try again\n");
+                                        getchar();
+                                        continue;
+                                    }
+                                    else {
+                                        system("cls");
+                                        print_board(str);
+                                        print_choosing_menu2();
+                                        print_list(list, tur);
+                                        printf("choose your character that catch jack\n");
+                                        int c1, j1;
+                                        scanf("%d", &c1);
+                                        getchar();
+                                        if(exist_list(list, c1, tur - 1) == 0) {
+                                            printf("Wrong input press enter and tryfu again\n");
+                                            getchar();
+                                            continue;
+                                        }
+                                        if(1 > c1 && c1 >= 9) {
+                                            printf("Wrong input press enter and try again\n");
+                                            getchar();
+                                            continue;
+                                        }
+                                        printf("choose jack character\n");
+                                        scanf("%d", &j1);
+                                        getchar();
+                                        if(1 > j1 && j1 >= 9) {
+                                            printf("Wrong input press enter and try again\n");
+                                            getchar();
+                                            continue;
+                                        }
+                                        if(j1 == c1) {
+                                            printf("Wrong input press enter and try again\n");
+                                            getchar();
+                                            continue;
+                                        }
+                                        int c1x = findx(c1);
+                                        int c1y = findy(c1);
+                                        int j1x = findx(j1);
+                                        int j1y = findy(j1);
+                                        bool can = 0, dis1;
+                                        if(c1 == 7) {
+                                            dis1 = dis_obstacle(c1x, c1y, j1x, j1y, 0);
+                                            if(dis1 < 5) can = 1;
+                                        }
+                                        else {
+                                            dis1 = dis(c1x, c1y, j1x, j1y, 0);
+                                            if(dis1 < 4) can = 1;
+                                        }
+                                        if(can) {
+                                            if(j1 == jack) {
+                                                system("cls");
+                                                printf("detective guess is right\n");
+                                                printf("detective win match\n");
+                                                printf("Press enter to continue");
+                                                getchar();
+                                            }
+                                            else {
+                                                system("cls");
+                                                printf("detective guess is Wrong\n");
+                                                printf("jack win match\n");
+                                                printf("Press enter to continue");
+                                                getchar();
+                                            }
+                                            goto game_finish;
+                                        }
+                                        else {
+                                            printf("Wrong input press enter and try again\n");
+                                            getchar();
+                                            continue;
+                                        }
+                                    }
+                                }
                             }
                             if(exist_list(list, choose_char, tur - 1)) {
                                 swap_list(list, choose_char, tur - 1);
@@ -575,8 +704,97 @@ int main () {
                         }
                     }
                     turn = 1;
+                    bool viz[9] = {0,0,0,0,0,0,0,0,0};
+                    for(int i = 0 ; i < 13 ; i++ ) {
+                        for(int j = 0 ; j < 9 ; j++ ) {
+                            if((hex[i][j].character != 0) || (hex[i][j].type == light && hex[i][j].on == 1)) {
+                                for(int k = 0 ; k < 6 ; k++ ) {
+                                    int xp = hex[i][j].xnei[k], yp = hex[i][j].ynei[k];
+                                    if(in_range(xp, yp)) {
+                                        if(hex[xp][yp].character != 0) {
+                                            viz[hex[xp][yp].character] = 1;
+                                        }
+                                    }
+                                }
+                            }
+
+                        }
+                    }
+                    int fx = findx(1);
+                    int fy = findy(1);
+                    int dir = hex[fx][fy].tartib;
+                    while(in_range(fx, fy)) {
+                        int cfx = hex[fx][fy].xnei[dir];
+                        int cfy = hex[fx][fy].ynei[dir];
+                        fx = cfx;
+                        fy = cfy;
+                        if(in_range(fx, fy)) {
+                            if(hex[fx][fy].character != 0) {
+                                viz[hex[fx][fy].character] = 1;
+                            }
+                        }
+                    }
+                    vis = viz[jack];
+                    for(int i = 1 ; i <= 8 ; i++ ) {
+                        if(viz[i] != viz[jack]) {
+                            int fx = findx(i), fy = findy(i);
+                            change(str[hex[fx][fy].yname], char_name_inn(i), hex[fx][fy].xname);
+                        }
+                    }
+                    if(dor == 8) {
+                        printf("detective don't catch jack and time up\n");
+                        printf("jack win match\n");
+                        printf("Press enter to continue");
+                        getchar();
+                        goto game_finish;
+                    }
                 }
+                game_finish:
+                system("cls");
+                printf("1)back to menu\n");
+                printf("2)replay of game\n");;
+                printf("Enter : ");
+                int op4 = 0, cnt = 0;
+                while(op4 != 1 && op4 != 2) {
+                    if(cnt) {
+                        printf("Wrong input press enter and try again\n");
+                        getchar();
+                        system("cls");
+                        printf("1)back to menu\n");
+                        printf("2)replay of game\n");;
+                        printf("Enter : ");
+                    }
+                    scanf("%d", &op4);
+                    getchar();
+                    cnt++;
+                }
+                if(op4 == 1) {
+                    FILE *map = fopen("replay.txt", "r");
+                    int rw = row;
+                    for(int i = rw ; i >= 1 ; i-- ) {
+                        char ch;
+                        int cl = 0;
+                        while((ch = fgetc(map)) != EOF) {
+                            if(ch == '\n') break;
+                            printf("%c", ch);
+                            cl++;
+                        }
+                        if(i == 1 && ch != EOF) {
+                            i = rw;
+                            delay(4);
+                            system("cls");
+                        }
+                        if(ch == EOF) {
+                            delay(4);
+                            break;
+                        }
+                    }
+                    printf("Press enter and go to menu\n");
+                    getchar();
+                }
+
             }
+            continue;
         }
         else if(op == 3) {
             while(true) {
@@ -879,14 +1097,16 @@ int main () {
                             }
                             else {
                                 int dir;
-                                printf("You must choose your direction of your light\n");
-                                printf("1)Up\n");
-                                printf("2)Down\n");
-                                printf("3)Left and Up\n");
-                                printf("4)Left and down\n");
-                                printf("5)Right and up\n");
-                                printf("6)Right and down\n");
-                                scanf("%d", dir);
+                                if(i == 1) {
+                                    printf("You must choose your direction of your light\n");
+                                    printf("1)Up\n");
+                                    printf("2)Down\n");
+                                    printf("3)Left and Up\n");
+                                    printf("4)Left and down\n");
+                                    printf("5)Right and up\n");
+                                    printf("6)Right and down\n");
+                                    scanf("%d", dir);
+                                }
                                 fwrite(&character, 4, 1, map);
                                 fwrite(&x, 4, 1, map);
                                 fwrite(&y, 4, 1, map);
@@ -908,6 +1128,10 @@ int main () {
                             getchar();
                         }
                     }
+                    fwrite(&hund, 4, 1, map);
+                    fwrite(&one, 4, 1, map);
+                    fwrite(&one, 4, 1, map);
+                    fwrite(&one, 4, 1, map);
                     fclose(map);
                     map = fopen(add_number_before_type("front_map.txt", op2), "w");
                     for(int i = 0 ; i < row ; i++ ) {
