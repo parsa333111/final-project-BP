@@ -32,7 +32,7 @@ void print_choosing_menu() {
         print_char(i);
         printf("\n");
     }
-    printf("10)See card in hand\n");
+    printf("0)for catch jack 10)for See card in hand 11)for see direction of watson's light 12)print jack character\n");
 }
 
 
