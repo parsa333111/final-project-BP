@@ -41,6 +41,18 @@ void dfs(int x, int y, int dp[13][9]) {
     }
 }
 
+int dis_legal(int x1, int y1, int x2, int y2, int dep) {
+    if(in_range(x1, y1) == 0 || dep > 4) return 5;
+    if(hex[x1][y1].type == light || hex[x1][y1].type == house || hex[x1][y1].type == escape) return 5;
+    if(x1 == x2 && y1 == y2) return dep;
+    int mn = 5;
+    for(int i = 0 ; i < 6 ; i++ ) {
+        mn = minimum(dis_legal(hex[x1][y1].xnei[i], hex[x1][y1].ynei[i], x2, y2, dep + 1), mn);
+    }
+    return mn;
+}
+
+
 int dis(int x1, int y1, int x2, int y2, int dep) {
     if(in_range(x1, y1) == 0 || dep > 4) return 5;
     if(hex[x1][y1].type == light || hex[x1][y1].type == house || hex[x1][y1].type == escape) return 5;
@@ -65,6 +77,30 @@ int dis(int x1, int y1, int x2, int y2, int dep) {
     return mn;
 }
 
+int dis2(int x1, int y1, int x2, int y2, int dep) {
+    if(in_range(x1, y1) == 0 || dep > 4) return 5;
+    if(hex[x1][y1].type == light || hex[x1][y1].type == house) return 5;
+    if(x1 == x2 && y1 == y2) return dep;
+    int mn = 5;
+    for(int i = 0 ; i < 6 ; i++ ) {
+        mn = minimum(dis2(hex[x1][y1].xnei[i], hex[x1][y1].ynei[i], x2, y2, dep + 1), mn);
+    }
+    if(hex[x1][y1].type == well) {
+        if(hex[x1][y1].on == 1) {
+            for(int i = 0 ; i < 13 ; i++ ) {
+                for(int j = 0 ; j < 9 ; j++ ) {
+                    if(hex[i][j].type == well) {
+                        if(hex[i][j].on == 1) {
+                            mn = minimum(dis2(i, j, x2, y2, dep + 1), mn);
+                        }
+                    }
+                }
+            }
+        }
+    }
+    return mn;
+}
+
 int dis_obstacle(int x1, int y1, int x2, int y2, int dep) {
     if(in_range(x1, y1) == 0 || dep > 4) return 5;
     if(hex[x1][y1].type == escape) return 5;
@@ -80,6 +116,29 @@ int dis_obstacle(int x1, int y1, int x2, int y2, int dep) {
                     if(hex[i][j].type == well) {
                         if(hex[i][j].on == 1) {
                             mn = minimum(dis_obstacle(i, j, x2, y2, dep + 1), mn);
+                        }
+                    }
+                }
+            }
+        }
+    }
+    return mn;
+}
+
+int dis_obstacle2(int x1, int y1, int x2, int y2, int dep) {
+    if(in_range(x1, y1) == 0 || dep > 4) return 5;
+    if(x1 == x2 && y1 == y2) return dep;
+    int mn = 5;
+    for(int i = 0 ; i < 6 ; i++ ) {
+        mn = minimum(dis_obstacle2(hex[x1][y1].xnei[i], hex[x1][y1].ynei[i], x2, y2, dep + 1), mn);
+    }
+    if(hex[x1][y1].type == well) {
+        if(hex[x1][y1].on == 1) {
+            for(int i = 0 ; i < 13 ; i++ ) {
+                for(int j = 0 ; j < 9 ; j++ ) {
+                    if(hex[i][j].type == well) {
+                        if(hex[i][j].on == 1) {
+                            mn = minimum(dis_obstacle2(i, j, x2, y2, dep + 1), mn);
                         }
                     }
                 }
@@ -558,9 +617,9 @@ void print_board_char7(char str[40][110]) {
             continue;
         }
         int fx = findx(7), fy = findy(7);
-        printf("%d %d %d %d\n", x, y, fx, fy);
+        //printf("%d %d %d %d\n", x, y, fx, fy);
         int dis1 = dis_obstacle(x, y, fx, fy, 0);
-        printf("dis : %d\n", dis1);
+        //printf("dis : %d\n", dis1);
         if(0 <  dis1 && dis1 < 5 && hex[x][y].type != light &&  hex[x][y].type != escape && hex[x][y].character == 0 && hex[x][y].type != house) {
             swap_str_name(x, y, fx, fy, str);
             hex[x][y].character = 7;
@@ -578,7 +637,7 @@ void print_board_char8(char str[40][110]) {
     bool mo1 = 0, mo2 = 0;
     while(true) {
         system("cls");
-        if(mo1 == 1 && mo2 == 2) break;
+        if(mo1 == 1 && mo2 == 1) break;
         print_board(str);
         printf("You choose SG you must move him 1-3 hexagon and make 3 move to make closer other character to him\n");
         printf("1)move SG\n");
@@ -642,7 +701,7 @@ void print_board_char8(char str[40][110]) {
                 system("cls");
                 print_board(str);
                 printf("choose your character to make closer to SG \n");
-                printf("You have %d move", move_char);
+                printf("You have %d move\n", move_char);
                 print_choosing_menu2();
                 int op2;
                 scanf("%d", &op2);
@@ -671,7 +730,7 @@ void print_board_char8(char str[40][110]) {
                         continue;
                     }
                     int fas = dp[ffx][ffy] - dp[x][y];
-                    if(fas < 1 || fas > move_char) {
+                    if(fas <= 0) {
                         printf("Wrong input press enter and try again\n");
                         getchar();
                         continue;
@@ -679,7 +738,7 @@ void print_board_char8(char str[40][110]) {
                     swap_str_name(x, y, ffx, ffy, str);
                     hex[x][y].character = op2;
                     hex[ffx][ffy].character = 0;
-                    move_char -= fas;
+                    move_char -= dis_legal(x, y, ffx, ffy, 0);
                 }
             }
             mo2 = 1;
