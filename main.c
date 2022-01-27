@@ -9,7 +9,7 @@
 int row = 37;
 
 bool shelock[9];
-int shelock_jack[9], shelock_detective[9], shd, shj;
+int shelock_jack[9], shelock_detective[9], shd, shj, hazf[8], counter;
 
 void delay(int x) {
     long long int xp = 300000000LL * x;
@@ -65,16 +65,30 @@ struct hexagon {
     int light_dir;
 };
 
-void swap_list(struct node *list, int valx, int y) {
+struct node* delete_list(struct node *list, int valx) {
     struct node *cpy_list = list;
-    while(list -> id != valx) {
-        list = list -> nex;
+    hazf[counter++] = valx;
+    if(list -> id == valx) {
+        cpy_list = list -> nex;
+        free(list);
     }
-    for(int i = 0 ; i < y ; i++ ) {
-        cpy_list = cpy_list -> nex;
+    else {
+        while((list -> nex) -> id != valx) {
+            list = list -> nex;
+        }
+        if(list -> nex -> nex == NULL) {
+            struct node *tmp = list;
+            list = list -> nex;
+            free(list);
+            tmp -> nex = NULL;
+        }
+        else {
+            struct node *tmp = list -> nex -> nex;
+            free(list -> nex);
+            list -> nex = tmp;
+        }
     }
-    list -> id = cpy_list -> id;
-    cpy_list -> id = valx;
+    return cpy_list;
 }
 
 /*
@@ -216,11 +230,7 @@ void print_board(char str[40][110]) {
     }
 }
 
-void print_list(struct node *list, int x) {
-    x--;
-    while(x--) {
-        list = list -> nex;
-    }
+void print_list(struct node *list) {
     while(list != NULL) {
         print_char(list -> id);
         printf(" ");
@@ -281,8 +291,7 @@ void print_turn(int dor, int tur, int viz) {
     }
 }
 
-bool exist_list(struct node* list, int find, int ign) {
-    while(ign--) list = list -> nex;
+bool exist_list(struct node* list, int find) {
     while(list != NULL) {
         if(list -> id == find) return 1;
         list = list -> nex;
@@ -385,6 +394,8 @@ int main () {
                         char_on_board = 1;
                     }
                     if(0 == fread(&jack, 4, 1, back_map)) jack = 0;
+                    fclose(back_map);
+                    fclose(front_map);
                     break;
                 }
             }
@@ -453,6 +464,8 @@ int main () {
                         char_on_board = 1;
                     }
                     if(0 == fread(&jack, 4, 1, back_map)) jack = 0;
+                    fclose(back_map);
+                    fclose(front_map);
                     break;
                 }
             }
@@ -465,11 +478,10 @@ int main () {
                      //change list and free them if(dor % 2 == 1) list1 = list2 = NULL;
                     for(int tur = turn ; tur <= 4 ; tur++ ) {
                         for(int i = 0 ; i < row ; i++ ) {
-                            for(int j = 0 ; j < strlen(str[i]) ; j++ ) {
-                                fprintf(rep, "%c", str[i][j]);
-                            }
-                            fprintf(rep, "%c", '\n');
+                            fputs(str[i], rep);
+                            fputc('\n', rep);
                         }
+                        //printf("HREE\n");
                         if(char_on_board) {
                             char_on_board = 0;
                             for(int i = 1 ; i <= 8 ; i++ ) {
@@ -483,8 +495,44 @@ int main () {
                                 }
                             }
                             list2 = next_four(list1);
+                            for(int i = 0 ; i < 8 ; i++ ) {
+                                hazf[i] = 0;
+                            }
+                            counter = 0;
+                            if(dor % 2 == 1) {
+                                int ted = tur - 1;
+                                while(ted--) {
+                                    struct node *tmp = list1;
+                                    hazf[counter++] = list1 -> id;
+                                    tmp = tmp -> nex;
+                                    free(list1);
+                                    list1 = tmp;
+                                }
+                            }
+                            else {
+                                int ted = 4;
+                                while(ted--) {
+                                    struct node *tmp = list1;
+                                    hazf[counter++] = list1 -> id;
+                                    tmp = tmp -> nex;
+                                    free(list1);
+                                    list1 = tmp;
+                                }
+                                ted = tur - 1;
+                                while(ted--) {
+                                    struct node *tmp = list2;
+                                    hazf[counter++] = list2 -> id;
+                                    tmp = tmp -> nex;
+                                    free(list2);
+                                    list2 = tmp;
+                                }
+                            }
                          }
                         else if (tur == 1 && dor % 2 == 1) {
+                            for(int i = 0 ; i < 8 ; i++ ) {
+                                hazf[i] = 0;
+                            }
+                            counter = 0;
                             if(jack == 0) {
                                 jack = rand() % 8;
                                 jack++;
@@ -517,8 +565,9 @@ int main () {
                             print_board(str);
                             print_turn(dor, tur, vis);
                             print_choosing_menu();
-                            if(dor % 2 == 1) print_list(list1, tur);
-                            else print_list(list2, tur);
+                            printf("You can play with this character : ");
+                            if(dor % 2 == 1) print_list(list1);
+                            else print_list(list2);
                             struct node *list = ((dor % 2 == 0) ? list2 : list1);
                             int choose_char;
                             scanf("%d", &choose_char);
@@ -603,12 +652,13 @@ int main () {
                                         system("cls");
                                         print_board(str);
                                         print_choosing_menu2();
-                                        print_list(list, tur);
+                                        if(dor % 2 == 1)print_list(list1);
+                                        if(dor % 2 == 0)print_list(list2);
                                         printf("choose your character that catch jack\n");
                                         int c1, j1;
                                         scanf("%d", &c1);
                                         getchar();
-                                        if(exist_list(list, c1, tur - 1) == 0) {
+                                        if(exist_list(list, c1) == 0) {
                                             printf("Wrong input press enter and tryfu again\n");
                                             getchar();
                                             continue;
@@ -668,9 +718,125 @@ int main () {
                                         }
                                     }
                                 }
+                                else if(choose_char == 13 && give_turn(dor, tur) == 2 && vis == 0) {
+                                    printf("make sure you can escape\n");
+                                    printf("1)Yes, I can\n");
+                                    printf("2)No, go back\n");
+                                    int op5;
+                                    scanf("%d", &op5);
+                                    getchar();
+                                    if(op5 == 2) {
+                                        printf("press enter and go back to game");
+                                        getchar();
+                                    }
+                                    else if(op5 == 1) {
+                                        printf("Enter your X, y for open escape :");
+                                        int x, y;
+                                        scanf("%d%d", &x, &y);
+                                        getchar();
+                                        if(hex[x][y].type != escape || hex[x][y].on == 0) {
+                                            printf("Wrong input press enter and try again");
+                                            getchar();
+                                        }
+                                        else {
+                                            int dis = 5;
+                                            if(jack == 7) {
+                                                dis = dis_obstacle2(x, y, findx(jack), findy(jack), 0);
+                                                if(dis < 5) {
+                                                   printf("jack escaped and win\n");
+                                                   goto game_finish;
+                                                }
+                                                else {
+                                                    printf("Wrong input press enter to continue");
+                                                    getchar();
+                                                }
+                                            }
+                                            else {
+                                                dis = dis2(x, y, findx(jack), findy(jack), 0);
+                                                if(dis < 4) {
+                                                   printf("jack escaped and win\n");
+                                                   goto game_finish;
+                                                }
+                                                else {
+                                                    printf("Wrong input press enter to continue");
+                                                    getchar();
+                                                }
+                                            }
+
+                                        }
+                                    }
+                                    else {
+                                        printf("Wrong input press enter and try again");
+                                        getchar();
+                                    }
+
+                                }
+                                else if(choose_char == 14) {
+                                    int op8;
+                                    system("cls");
+                                    printf("Enter your saving lot in range [1, 9] be careful your data in that saving lot may lost : ");
+                                    scanf("%d", &op8);
+                                    getchar();
+                                    if(op8 < 1 || op8 > 9) {
+                                        printf("Wrong input press enter and try again");
+                                        getchar();
+                                    }
+                                    else {//type x y use tartib
+                                        FILE *back_map = fopen(add_number_before_type("back saved map.txt", op8), "wb");
+                                        FILE *front_map = fopen(add_number_before_type("front saved map.txt", op8), "w");
+                                        for(int i = 0 ; i < row ; i++ ) {
+                                            fputs(str[i], front_map);
+                                            fputc('\n', front_map);
+                                        }
+                                        fclose(front_map);
+                                        for(int ii = 0 ; ii < 13 ; ii++ ) {
+                                            for(int jj = 0 ; jj < 9 ; jj++ ) {
+                                                if(hex[ii][jj].type) {
+                                                    fwrite(&hex[ii][jj].type, 4, 1, back_map);
+                                                    fwrite(&ii, 4, 1, back_map);
+                                                    fwrite(&jj, 4, 1, back_map);
+                                                    fwrite(&hex[ii][jj].on, 4, 1, back_map);
+                                                    if(hex[ii][jj].character != 1)fwrite(&hex[ii][jj].tartib, 4, 1, back_map);
+                                                    else fwrite(&zero, 4, 1, back_map);
+                                                }
+                                                if(hex[ii][jj].character) {
+                                                    fwrite(&character, 4, 1, back_map);
+                                                    fwrite(&ii, 4, 1, back_map);
+                                                    fwrite(&jj, 4, 1, back_map);
+                                                    fwrite(&hex[ii][jj].character, 4, 1, back_map);
+                                                    if(hex[ii][jj].character == 1)fwrite(&hex[ii][jj].tartib, 4, 1, back_map);
+                                                    else fwrite(&zero, 4, 1, back_map);
+                                                }
+                                            }
+                                        }
+                                        fwrite(&hund, 4, 1, back_map);
+                                        fwrite(&dor, 4, 1, back_map);
+                                        fwrite(&tur, 4, 1, back_map);
+                                        fwrite(&vis, 4, 1, back_map);
+                                        for(int i2 = 0 ; i2 < counter ; i2++ ) {
+                                            fwrite(&hazf[i2], 4, 1, back_map);
+                                        }
+                                        struct node *clist1 = list1;
+                                        struct node *clist2 = list2;
+                                        while(clist1 != NULL) {
+                                            fwrite(&(clist1 -> id), 4, 1, back_map);
+                                            clist1 = clist1 -> nex;
+                                        }
+                                        while(clist2 != NULL) {
+                                            fwrite(&(clist2 -> id), 4, 1, back_map);
+                                            clist2 = clist2 -> nex;
+                                        }
+                                        fwrite(&jack, 4, 1, back_map);
+                                        fclose(back_map);
+                                        printf("Game successfully saved press enter to continue");
+                                        getchar();
+                                        continue;
+                                    }
+                                }
                             }
-                            if(exist_list(list, choose_char, tur - 1)) {
-                                swap_list(list, choose_char, tur - 1);
+                            if(exist_list(list, choose_char)) {
+                                if(dor % 2 == 0)list2 = delete_list(list2, choose_char);
+                                if(dor % 2 == 1)list1 = delete_list(list1, choose_char);
                                 if(choose_char == 1) {
                                     print_board_char1(str);
                                 }
@@ -768,29 +934,30 @@ int main () {
                     getchar();
                     cnt++;
                 }
-                if(op4 == 1) {
+                if(op4 == 2) {
+                    fclose(rep);
                     FILE *map = fopen("replay.txt", "r");
-                    int rw = row;
-                    for(int i = rw ; i >= 1 ; i-- ) {
-                        char ch;
-                        int cl = 0;
-                        while((ch = fgetc(map)) != EOF) {
-                            if(ch == '\n') break;
-                            printf("%c", ch);
-                            cl++;
+                    int point = 0;
+                    bool is_end = 1;
+                    while(is_end) {
+                        system("cls");
+                        for(int i = point * 37 ; i < (point * 37) + row ; i++ ) {
+                            char ch;
+                            int cl = 0;
+                            while((ch = fgetc(map)) != EOF) {
+                                if(ch == '\n') break;
+                                printf("%c", ch);
+                                cl++;
+                            }
+                            if(ch == EOF) is_end = 0;
+                            printf("\n");
                         }
-                        if(i == 1 && ch != EOF) {
-                            i = rw;
-                            delay(4);
-                            system("cls");
-                        }
-                        if(ch == EOF) {
-                            delay(4);
-                            break;
-                        }
+                        if(is_end == 1)printf("press enter to continue replay");
+                        else printf("end of replay press enter and back to menu");
+                        getchar();
                     }
-                    printf("Press enter and go to menu\n");
-                    getchar();
+                    //printf("Press enter and go to menu\n");
+                    //getchar();
                 }
 
             }
