@@ -730,7 +730,8 @@ void print_board_char8(char str[40][110]) {
                         continue;
                     }
                     int fas = dp[ffx][ffy] - dp[x][y];
-                    if(fas <= 0) {
+                    int diss = dis_legal(x, y, ffx, ffy, 0);;
+                    if(fas <= 0 || diss > move_char) {
                         printf("Wrong input press enter and try again\n");
                         getchar();
                         continue;
@@ -738,7 +739,7 @@ void print_board_char8(char str[40][110]) {
                     swap_str_name(x, y, ffx, ffy, str);
                     hex[x][y].character = op2;
                     hex[ffx][ffy].character = 0;
-                    move_char -= dis_legal(x, y, ffx, ffy, 0);
+                    move_char -= diss;
                 }
             }
             mo2 = 1;
