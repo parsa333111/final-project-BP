@@ -2,7 +2,7 @@
 #include <stdlib.h>
 //100 dorchand turn[1,4]
 int main () {
-    FILE *f = fopen("back default map.txt", "rb");
+    FILE *f = fopen("back saved map1.txt", "rb");
     int endl = 0;
     while(1) {
         int x;
