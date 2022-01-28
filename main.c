@@ -8,8 +8,8 @@
 
 int row = 37;
 
-bool shelock[9];
-int shelock_jack[9], shelock_detective[9], shd, shj, hazf[8], counter;
+int shelock[9];
+int shelock_jack[9], shelock_detective[9], shd, shj, hazf[8], counter, twotou = 2022;
 
 void delay(int x) {
     long long int xp = 300000000LL * x;
@@ -127,6 +127,13 @@ void assigned() {
             hex[i][j].character = hex[i][j].type = 0;
         }
     }
+    for(int i = 0 ; i < shd ; i++ ) {
+        shelock_detective[i] = 0;
+    }
+    for(int i = 0 ; i < shj ; i++ ) {
+        shelock_jack[i] = 0;
+    }
+    shj = shd = 0;
 }
 
 #include "create.h"
@@ -389,11 +396,30 @@ int main () {
                     fread(&turn, 4, 1, back_map);
                     fread(&vis, 4, 1, back_map);
                     cnt = 0;
-                    while(fread(&char_on_table[cnt], 4, 1, back_map) != 0) {
+                    while(true) {
+                        int ok = fread(&char_on_table[cnt], 4, 1, back_map);
+                        if(ok == 0) break;
                         cnt++;
                         char_on_board = 1;
+                        if(cnt == 8) break;
                     }
-                    if(0 == fread(&jack, 4, 1, back_map)) jack = 0;
+                    if(char_on_board) {
+                        fread(&jack, 4, 1, back_map);
+                        shelock[jack] = 1;
+                        int inn = 0;
+                        while(true) {
+                            fread(&inn, 4, 1, back_map);
+                            if(inn == 2022) {
+                                break;
+                            }
+                            shelock_detective[shd++] = inn;
+                            shelock[inn] = 1;
+                        }
+                        while(fread(&inn, 4, 1, back_map) != 0) {
+                            shelock_jack[shj++] = inn;
+                            shelock[inn] = 1;
+                        }
+                    }
                     fclose(back_map);
                     fclose(front_map);
                     break;
@@ -459,11 +485,32 @@ int main () {
                     fread(&turn, 4, 1, back_map);
                     fread(&vis, 4, 1, back_map);
                     cnt = 0;
-                    while(fread(&char_on_table[cnt], 4, 1, back_map) != 0) {
+                    while(true) {
+                        int ok = fread(&char_on_table[cnt], 4, 1, back_map);
+                        if(ok == 0) break;
                         cnt++;
                         char_on_board = 1;
+                        if(cnt == 8) break;
                     }
-                    if(0 == fread(&jack, 4, 1, back_map)) jack = 0;
+                    if(char_on_board) {
+                        int ok = fread(&jack, 4, 1, back_map);
+                        shelock[jack] = 1;
+                        int inn = 0;
+                        while(true) {
+                            fread(&inn, 4, 1, back_map);
+                            if(inn == 2022) {
+                                break;
+                            }
+                            shelock_detective[shd] = inn;
+                            shd++;
+                            shelock[inn] = 1;
+                        }
+                        while(fread(&inn, 4, 1, back_map) != 0) {
+                            shelock_jack[shj] = inn;
+                            shj++;
+                            shelock[inn] = 1;
+                        }
+                    }
                     fclose(back_map);
                     fclose(front_map);
                     break;
@@ -815,6 +862,7 @@ int main () {
                                         fwrite(&vis, 4, 1, back_map);
                                         for(int i2 = 0 ; i2 < counter ; i2++ ) {
                                             fwrite(&hazf[i2], 4, 1, back_map);
+                                            //printf("%d ", hazf[i2]);
                                         }
                                         struct node *clist1 = list1;
                                         struct node *clist2 = list2;
@@ -827,6 +875,15 @@ int main () {
                                             clist2 = clist2 -> nex;
                                         }
                                         fwrite(&jack, 4, 1, back_map);
+                                        //printf("saved %d ", jack);
+                                        for(int i2 = 0; i2 < shd ;i2++) {
+                                            fwrite(&shelock_detective[i2], 4, 1, back_map);
+                                            //printf("%d ", )
+                                        }
+                                        fwrite(&twotou, 4, 1, back_map);
+                                        for(int i2 = 0; i2 < shj ;i2++) {
+                                            fwrite(&shelock_jack[i2], 4, 1, back_map);
+                                        }
                                         fclose(back_map);
                                         printf("Game successfully saved press enter to continue");
                                         getchar();
@@ -888,7 +945,7 @@ int main () {
                     }
                     int fx = findx(1);
                     int fy = findy(1);
-                    int dir = hex[fx][fy].tartib;
+                    int dir = hex[fx][fy].tartib - 1;
                     while(in_range(fx, fy)) {
                         int cfx = hex[fx][fy].xnei[dir];
                         int cfy = hex[fx][fy].ynei[dir];
