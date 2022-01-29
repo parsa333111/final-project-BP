@@ -316,11 +316,13 @@ void swap_hexagon(int x1, int y1, int x2, int y2) {
 
 #include "change string.h"
 #include "character ability.h"
+#include "bot.h"
 
 int main () {
     srand(time(0));
     create();
     while(true) {
+        first_menu:
         print_first_menu();
         int op;
         scanf("%d", &op);
@@ -328,6 +330,37 @@ int main () {
         if(op == 1 || op == 2) {
             //type x y use tartib
             //100 dorchand turn[1,4]
+            int bot_character = 0;
+            int beg = 0;
+            while(true) {
+                system("cls");
+                printf("1)play with bot\n2)two play\n10)back\nenter:");
+                scanf("%d", &beg);
+                getchar();
+                if(beg != 1 && beg != 2 && beg != 10) {
+                    printf("Wrong input press enter and try again");
+                    getchar();
+                }
+                else break;
+            }
+            if(beg == 10) {
+                goto first_menu;
+            }
+            while(beg == 1) {
+                system("cls");
+                printf("Enter your character\n1)detective\n2)jack\nEnter:");
+                int naghsh;
+                scanf("%d", &naghsh);
+                getchar();
+                if(naghsh != 1 && naghsh != 2) {
+                    printf("Wrong input press enter and try again");
+                    getchar();
+                }
+                else {
+                    bot_character = (naghsh == 1) ? 2 : 1;
+                    break;
+                }
+            }
             assigned();
             int dor, turn, vis, char_on_table[8] = {-1,-1,-1,-1,-1,-1,-1,-1}, jack = 0;
             bool char_on_board = 0;
@@ -350,8 +383,8 @@ int main () {
                         front_map = fopen("front default map.txt", "r");
                     }
                     else {
-                        back_map = fopen(add_number_before_type("back map.txt", op2), "rb");
-                        front_map = fopen(add_number_before_type("front map.txt", op2), "r");
+                        back_map = fopen(add_number_before_type("back_map.txt", op2), "rb");
+                        front_map = fopen(add_number_before_type("front_map.txt", op2), "r");
                     }
                     for(int i = 0 ; i < row ; i++ ) {
                         char ch;
@@ -574,7 +607,7 @@ int main () {
                                     list2 = tmp;
                                 }
                             }
-                         }
+                        }
                         else if (tur == 1 && dor % 2 == 1) {
                             for(int i = 0 ; i < 8 ; i++ ) {
                                 hazf[i] = 0;
@@ -584,14 +617,16 @@ int main () {
                                 jack = rand() % 8;
                                 jack++;
                                 shelock[jack] = 1;
-                                printf("only jack must see screen, jack character reveal with press enter");
-                                getchar();
-                                system("cls");
-                                printf("only jack must see screen, jack character is ");
-                                print_char(jack);
-                                printf(" jack character disappear with press enter");
-                                getchar();
-                                system("cls");
+                                if(bot_character != 2) {
+                                    printf("only jack must see screen, jack character reveal with press enter");
+                                    getchar();
+                                    system("cls");
+                                    printf("only jack must see screen, jack character is ");
+                                    print_char(jack);
+                                    printf(" jack character disappear with press enter");
+                                    getchar();
+                                    system("cls");
+                                }
                             }
                             for(int i = 1 ; i <= 8 ; i++ ) {
                                 if(i == 1) {
@@ -606,6 +641,12 @@ int main () {
 
                             shuffle(list1, 8);
                             list2 = next_four(list1);
+                        }
+                        if(bot_character == give_turn(dor, tur)) {
+                            int moved_char = bot_move((dor % 2 == 0) ? list2 : list1, str);
+                            if(dor % 2 == 0)list2 = delete_list(list2, moved_char);
+                            if(dor % 2 == 1)list1 = delete_list(list1, moved_char);
+                            continue;
                         }
                         while(true) {
                             system("cls");
@@ -766,6 +807,8 @@ int main () {
                                     }
                                 }
                                 else if(choose_char == 13 && give_turn(dor, tur) == 2 && vis == 0) {
+                                    system("cls");
+                                    print_board(str);
                                     printf("make sure you can escape\n");
                                     printf("1)Yes, I can\n");
                                     printf("2)No, go back\n");
@@ -773,8 +816,11 @@ int main () {
                                     scanf("%d", &op5);
                                     getchar();
                                     if(op5 == 2) {
+                                        system("cls");
+                                        print_board(str);
                                         printf("press enter and go back to game");
                                         getchar();
+                                        continue;
                                     }
                                     else if(op5 == 1) {
                                         printf("Enter your X, y for open escape :");
@@ -784,6 +830,7 @@ int main () {
                                         if(hex[x][y].type != escape || hex[x][y].on == 0) {
                                             printf("Wrong input press enter and try again");
                                             getchar();
+                                            continue;
                                         }
                                         else {
                                             int dis = 5;
@@ -796,6 +843,7 @@ int main () {
                                                 else {
                                                     printf("Wrong input press enter to continue");
                                                     getchar();
+                                                    continue;
                                                 }
                                             }
                                             else {
@@ -807,6 +855,7 @@ int main () {
                                                 else {
                                                     printf("Wrong input press enter to continue");
                                                     getchar();
+                                                    continue;
                                                 }
                                             }
 
@@ -815,6 +864,7 @@ int main () {
                                     else {
                                         printf("Wrong input press enter and try again");
                                         getchar();
+                                        continue;
                                     }
 
                                 }
@@ -827,6 +877,7 @@ int main () {
                                     if(op8 < 1 || op8 > 9) {
                                         printf("Wrong input press enter and try again");
                                         getchar();
+                                        continue;
                                     }
                                     else {//type x y use tartib
                                         FILE *back_map = fopen(add_number_before_type("back saved map.txt", op8), "wb");
@@ -970,6 +1021,17 @@ int main () {
                         printf("Press enter to continue");
                         getchar();
                         goto game_finish;
+                    }
+                    int khamosh = dor;
+                    if(dor <= 4) {
+                        for(int i = 0 ; i < 13 ; i++ ) {
+                            for(int j = 0 ; j < 9 ; j++ ) {
+                                if(hex[i][j].type == light && hex[i][j].tartib == khamosh) {
+                                    hex[i][j].on = 0;
+                                    change(str[hex[i][j].ylight], "lamp off", hex[i][j].xlight);
+                                }
+                            }
+                        }
                     }
                 }
                 game_finish:
@@ -1330,6 +1392,7 @@ int main () {
                                     printf("5)Right and up\n");
                                     printf("6)Right and down\n");
                                     scanf("%d", dir);
+                                    if(dir < 1 || dir > 6) continue;
                                 }
                                 fwrite(&character, 4, 1, map);
                                 fwrite(&x, 4, 1, map);
