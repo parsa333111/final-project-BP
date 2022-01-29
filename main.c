@@ -117,7 +117,13 @@ int JW = 1, IL = 2, WG = 3, JS = 4, SH = 5, JB = 6, MS = 7, SG = 8;
 struct hexagon hex[13][9];
 
 bool in_range(int x, int y) {
-    if(x > 12 || x < 0 || y < 0 || y > 8)return 0;
+    if(x < 0 || 12 < x) return 0;
+    if(x % 2 == 1) {
+        if(y < 0 || 8 < y) return 0;
+    }
+    else {
+        if(y < 0 || 7 < y) return 0;
+    }
     return 1;
 }
 
@@ -1393,7 +1399,6 @@ int main () {
                                     scanf("%d", &dir);
                                     if(dir < 1 || dir > 6) continue;
                                 }
-                                printf("HT\n");
                                 fwrite(&character, 4, 1, map);
                                 fwrite(&x, 4, 1, map);
                                 fwrite(&y, 4, 1, map);
