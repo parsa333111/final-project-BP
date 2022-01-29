@@ -334,7 +334,7 @@ int main () {
             int beg = 0;
             while(true) {
                 system("cls");
-                printf("1)play with bot\n2)two play\n10)back\nenter:");
+                printf("1)play with bot\n2)two player\n10)back\nenter:");
                 scanf("%d", &beg);
                 getchar();
                 if(beg != 1 && beg != 2 && beg != 10) {
@@ -549,19 +549,16 @@ int main () {
                     break;
                 }
             }
-            //group 1, group 2
             system("cls");
             {
                 FILE *rep = fopen("replay.txt", "w");
                 struct node *list1 = NULL, *list2 = NULL;
                 for(; dor <= 8 ; dor++) {
-                     //change list and free them if(dor % 2 == 1) list1 = list2 = NULL;
                     for(int tur = turn ; tur <= 4 ; tur++ ) {
                         for(int i = 0 ; i < row ; i++ ) {
                             fputs(str[i], rep);
                             fputc('\n', rep);
                         }
-                        //printf("HREE\n");
                         if(char_on_board) {
                             char_on_board = 0;
                             for(int i = 1 ; i <= 8 ; i++ ) {
@@ -838,6 +835,7 @@ int main () {
                                                 dis = dis_obstacle2(x, y, findx(jack), findy(jack), 0);
                                                 if(dis < 5) {
                                                    printf("jack escaped and win\n");
+                                                   getchar();
                                                    goto game_finish;
                                                 }
                                                 else {
@@ -850,6 +848,7 @@ int main () {
                                                 dis = dis2(x, y, findx(jack), findy(jack), 0);
                                                 if(dis < 4) {
                                                    printf("jack escaped and win\n");
+                                                   getchar();
                                                    goto game_finish;
                                                 }
                                                 else {
@@ -1391,9 +1390,10 @@ int main () {
                                     printf("4)Left and down\n");
                                     printf("5)Right and up\n");
                                     printf("6)Right and down\n");
-                                    scanf("%d", dir);
+                                    scanf("%d", &dir);
                                     if(dir < 1 || dir > 6) continue;
                                 }
+                                printf("HT\n");
                                 fwrite(&character, 4, 1, map);
                                 fwrite(&x, 4, 1, map);
                                 fwrite(&y, 4, 1, map);
