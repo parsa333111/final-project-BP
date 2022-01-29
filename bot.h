@@ -130,10 +130,43 @@ void move7(char str[40][110]) {
     }
 }
 
+void move8(char str[40][110]) {
+    int fx = findx(8), fy = findy(8);
+    for(int i = 0 ; i < 6 ; i++ ) {
+        if(is_ban(hex[fx][fy].xnei[i], hex[fx][fy].ynei[i]) == 0) {
+            swap_str_name(fx, fy, hex[fx][fy].xnei[i], hex[fx][fy].ynei[i], str);
+            break;
+        }
+    }
+    int dp[13][9];
+    for(int i = 0 ; i < 13 ; i++ ) {
+        for(int j = 0 ; j < 9 ; j++ ) {
+            dp[i][j] = 100;
+        }
+    }
+    dp[fx][fy] = 0;
+    dfs(fx, fy, dp);
+    for(int i = 0 ; i < 13 ; i++ ) {
+        for(int j = 0 ; j < 9 ; j++ ) {
+            if(hex[i][j].type == house || hex[i][j].type == escape || hex[i][j].type == light || hex[i][j].character != 0)continue;
+            for(int k = 1 ; k <= 7 ; k++ ) {
+                int fxk = findx(k), fyk = findx(k);
+                int diss = dis_legal(i, j, fxk, fyk, 0);
+                if(diss == 3 && dp[fxk][fyk] > dp[i][j]) {
+                    swap_str_name(fx, fy, fxk, fyk, str);
+                    hex[i][j].character = k;
+                    hex[fxk][fyk].character = 0;
+                    return;
+                }
+            }
+        }
+    }
+}
+
 int bot_move(struct node *l, char str[40][110]) {
     system("cls");
     print_board(str);
-    int sec = 10;
+    int sec = 6;
     while(sec) {
         printf("Bot move in %ds", sec);
         delay(1);
@@ -171,6 +204,10 @@ int bot_move(struct node *l, char str[40][110]) {
             printf("Press enter and make your move");
             getchar();
             return idd;
+        }
+        if(l -> nex == NULL) {
+            move8(str);
+            return 8;
         }
         l = l -> nex;
     }
