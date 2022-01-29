@@ -730,7 +730,7 @@ void print_board_char8(char str[40][110]) {
                         continue;
                     }
                     int fas = dp[ffx][ffy] - dp[x][y];
-                    int diss = dis_legal(x, y, ffx, ffy, 0);;
+                    int diss = dis_legal(x, y, ffx, ffy, 0);
                     if(fas <= 0 || diss > move_char) {
                         printf("Wrong input press enter and try again\n");
                         getchar();
@@ -749,7 +749,5 @@ void print_board_char8(char str[40][110]) {
             getchar();
             continue;
         }
-
-
     }
 }
